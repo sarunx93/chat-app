@@ -1,8 +1,36 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './chatList.css'
+import AddUser from './addUser/AddUser'
+import { useUserStore } from '../../../lib/userStore'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
+import { db } from '../../../lib/firebase'
+import { DocumentData } from 'firebase/firestore'
 
 const ChatList = () => {
   const [addMode, setAddmode] = useState<boolean>(false)
+  const [chats, setChats] = useState<DocumentData | undefined>(undefined)
+  const { currentUser } = useUserStore()
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'userchats', currentUser.id), async (res) => {
+      const items = res.data()?.chats
+
+      const promises = items.map(async (item: any) => {
+        const userDocRef = doc(db, 'users', item.receiverId)
+        const userDocSnap = await getDoc(userDocRef)
+
+        const user = userDocSnap.data()
+        return { ...item, user }
+      })
+
+      const chatData = await Promise.all(promises)
+      setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt))
+    })
+
+    return () => {
+      unsub()
+    }
+  }, [currentUser.id])
 
   const toggleAddMode = () => {
     setAddmode((prev) => !prev)
@@ -22,34 +50,18 @@ const ChatList = () => {
           onClick={toggleAddMode}
         />
       </div>
-      <div className='item'>
-        <img src='./avatar.png' alt='' />
-        <div className='texts'>
-          <span>Jane Doe</span>
-          <p>Hello</p>
+
+      {chats?.map((chat: any) => (
+        <div className='item' key={chat.chatId}>
+          <img src='./avatar.png' alt='' />
+          <div className='texts'>
+            <span>Jane Doe</span>
+            <p>Hello</p>
+          </div>
         </div>
-      </div>
-      <div className='item'>
-        <img src='./avatar.png' alt='' />
-        <div className='texts'>
-          <span>Jane Doe</span>
-          <p>Hello</p>
-        </div>
-      </div>
-      <div className='item'>
-        <img src='./avatar.png' alt='' />
-        <div className='texts'>
-          <span>Jane Doe</span>
-          <p>Hello</p>
-        </div>
-      </div>
-      <div className='item'>
-        <img src='./avatar.png' alt='' />
-        <div className='texts'>
-          <span>Jane Doe</span>
-          <p>Hello</p>
-        </div>
-      </div>
+      ))}
+
+      {addMode && <AddUser />}
     </div>
   )
 }

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './chat.css'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 
 const chat = () => {
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [text, setText] = useState<string>('')
+
+  const endRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
 
   const toggleOpenEmoji = () => {
     setOpenEmoji((prev) => !prev)
@@ -31,7 +37,61 @@ const chat = () => {
           <img src='./info.png' alt='info' />
         </div>
       </div>
-      <div className='center'></div>
+      <div className='center'>
+        <div className='message'>
+          <img src='./avatar.png' alt='' />
+          <div className='texts'>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
+              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>
+        <div className='message own'>
+          <div className='texts'>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
+              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>
+        <div className='message'>
+          <img src='./avatar.png' alt='' />
+          <div className='texts'>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
+              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>
+        <div className='message own'>
+          <div className='texts'>
+            <img
+              src='https://www.kkday.com/th/blog/wp-content/uploads/Alt-om-rejsen-til-Thailand-artikler-og-rejsetilbud-1.jpg'
+              alt=''
+            />
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
+              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>
+        <div className='message'>
+          <img src='./avatar.png' alt='' />
+          <div className='texts'>
+            <p>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
+              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
+            </p>
+            <span>1 min ago</span>
+          </div>
+        </div>
+        <div ref={endRef}></div>
+      </div>
       <div className='bottom'>
         <div className='icons'>
           <img src='./img.png' alt='image' />
