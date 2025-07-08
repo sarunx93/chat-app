@@ -3,11 +3,14 @@ import './chat.css'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { doc, DocumentData, onSnapshot } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
+import { useChatStore } from '../../lib/chatStore'
 
 const chat = () => {
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [text, setText] = useState<string>('')
   const [chat, setChat] = useState<DocumentData | null>(null)
+
+  const {chatId} = useChatStore()
 
   const endRef = useRef<HTMLDivElement | null>(null)
 
@@ -16,13 +19,13 @@ const chat = () => {
   }, [])
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'chats', 'f9VarsNQYHsEktcGIxhV'), (res) => {
+    const unsub = onSnapshot(doc(db, 'chats', chatId as string), (res) => {
       setChat(res.data() ?? null)
     })
     return () => {
       unsub()
     }
-  }, [])
+  }, [chatId])
 
   
 
