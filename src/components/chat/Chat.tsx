@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import './chat.css'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
-import { doc, DocumentData, onSnapshot } from 'firebase/firestore'
+import { arrayUnion, doc, DocumentData, getDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '../../lib/firebase'
 import { useChatStore } from '../../lib/chatStore'
+import { useUserStore } from '../../lib/userStore'
 
 const chat = () => {
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [text, setText] = useState<string>('')
   const [chat, setChat] = useState<DocumentData | null>(null)
 
-  const {chatId} = useChatStore()
+  const { currentUser } = useUserStore()
+  const { chatId, user } = useChatStore()
 
   const endRef = useRef<HTMLDivElement | null>(null)
 
@@ -27,8 +29,6 @@ const chat = () => {
     }
   }, [chatId])
 
-  
-
   const toggleOpenEmoji = () => {
     setOpenEmoji((prev) => !prev)
   }
@@ -36,6 +36,42 @@ const chat = () => {
   const handleEmoji = (e: EmojiClickData) => {
     setText((prev) => prev + e.emoji)
     setOpenEmoji(false)
+  }
+
+  const handleSend = async () => {
+    if (text === '') return
+    try {
+      await updateDoc(doc(db, 'chats', chatId as string), {
+        messages: arrayUnion({
+          senderId: currentUser.id,
+          text,
+          createdAt: new Date(),
+        }),
+      })
+
+      const userIDs = [currentUser.id, user.id]
+
+      userIDs.forEach(async (id) => {
+        const userChatsRef = doc(db, 'userchats', id)
+        const userChatsSnapshot = await getDoc(userChatsRef)
+
+        if (userChatsSnapshot.exists()) {
+          const userChatsData = userChatsSnapshot.data()
+
+          const chatIndex = userChatsData.chats.findIndex((c: any) => c.chatId === chatId)
+
+          userChatsData.chats[chatIndex].lastMessage = text
+          userChatsData.chats[chatIndex].isSeen = id === currentUser.id ? true : false
+          userChatsData.chats[chatIndex].updatedAt = Date.now()
+          console.log(userChatsData.chats[chatIndex])
+          await updateDoc(userChatsRef, {
+            chats: userChatsData.chats,
+          })
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -55,58 +91,16 @@ const chat = () => {
         </div>
       </div>
       <div className='center'>
-        <div className='message'>
-          <img src='./avatar.png' alt='' />
-          <div className='texts'>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
-              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
-            </p>
-            <span>1 min ago</span>
+        {chat?.messages.map((message: any) => (
+          <div className='message own' key={message?.createdAt}>
+            <div className='texts'>
+              {message.img && <img src={message.img} alt='image' />}
+              <p>{message.text}</p>
+              <span>1 min ago</span>
+            </div>
           </div>
-        </div>
-        <div className='message own'>
-          <div className='texts'>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
-              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className='message'>
-          <img src='./avatar.png' alt='' />
-          <div className='texts'>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
-              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className='message own'>
-          <div className='texts'>
-            <img
-              src='https://www.kkday.com/th/blog/wp-content/uploads/Alt-om-rejsen-til-Thailand-artikler-og-rejsetilbud-1.jpg'
-              alt=''
-            />
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
-              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
-        <div className='message'>
-          <img src='./avatar.png' alt='' />
-          <div className='texts'>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio iusto laborum
-              debitis vitae aliquid deleniti officiis quae, repudiandae iste numquam.
-            </p>
-            <span>1 min ago</span>
-          </div>
-        </div>
+        ))}
+
         <div ref={endRef}></div>
       </div>
       <div className='bottom'>
@@ -127,7 +121,9 @@ const chat = () => {
             <EmojiPicker open={openEmoji} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className='send-button'>Send</button>
+        <button className='send-button' onClick={handleSend}>
+          Send
+        </button>
       </div>
     </div>
   )

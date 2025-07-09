@@ -8,7 +8,8 @@ type ChatStoreState = {
   user: any | null
   isCurrentUserBlocked: boolean | null
   isReceiverBlocked: boolean | null
-  changeChat: any
+  changeChat: (chatId: string, user: any) => void
+  changeBlock: any
 }
 
 export const useChatStore = create<ChatStoreState>((set) => ({
@@ -30,13 +31,23 @@ export const useChatStore = create<ChatStoreState>((set) => ({
     }
 
     //check if the receiver is blocked.
-    if (currentUser.blocked.includes(user.id)) {
+    else if (currentUser.blocked.includes(user.id)) {
       return set({
         chatId,
         user,
         isCurrentUserBlocked: false,
         isReceiverBlocked: true,
       })
+    } else {
+      return set({
+        chatId,
+        user,
+        isCurrentUserBlocked: false,
+        isReceiverBlocked: false,
+      })
     }
+  },
+  changeBlock: () => {
+    set((state) => ({ ...state, isReceiverBlocked: !state.isReceiverBlocked }))
   },
 }))
