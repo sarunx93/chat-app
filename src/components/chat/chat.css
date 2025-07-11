@@ -143,6 +143,10 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+
+      &:disabled{
+        background-color: #;
+      }
     }
 
     .emoji {

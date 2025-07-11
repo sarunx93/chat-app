@@ -5,12 +5,12 @@ import { useUserStore } from '../../lib/userStore'
 import './detail.css'
 
 const Detail = () => {
-  const { chatId, user, isCurrnetUserBlocked, isReceiverBlocked, changeBlock } = useChatStore()
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeBlock } = useChatStore()
   const { currentUser } = useUserStore()
   const handleBlock = async () => {
     if (!user) return
 
-    const userDocRef = doc(db, ' users', currentUser.id)
+    const userDocRef = doc(db, ' users', currentUser?.id as string)
 
     try {
       await updateDoc(userDocRef, {
@@ -90,7 +90,7 @@ const Detail = () => {
           </div>
         </div>
         <button>
-          {isCurrnetUserBlocked
+          {isCurrentUserBlocked
             ? 'You are blocked.'
             : isReceiverBlocked
             ? 'User blocked'

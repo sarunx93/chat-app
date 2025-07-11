@@ -6,8 +6,8 @@ import { useUserStore } from './userStore'
 type ChatStoreState = {
   chatId: string | null
   user: any | null
-  isCurrentUserBlocked: boolean | null
-  isReceiverBlocked: boolean | null
+  isCurrentUserBlocked: boolean
+  isReceiverBlocked: boolean
   changeChat: (chatId: string, user: any) => void
   changeBlock: any
 }
@@ -17,6 +17,7 @@ export const useChatStore = create<ChatStoreState>((set) => ({
   user: null,
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
+  //when switch to other chat.
   changeChat: (chatId: string, user: any) => {
     const currentUser = useUserStore.getState().currentUser
 

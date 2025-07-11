@@ -5,9 +5,11 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { auth, db } from '../../lib/firebase'
 import { doc, setDoc } from 'firebase/firestore'
 import upload from '../../lib/upload'
+import { ImageFileType } from '../../types'
+
 
 const Login = () => {
-  const [avatar, setAvatar] = useState<any>({
+  const [avatar, setAvatar] = useState<ImageFileType>({
     file: null,
     url: '',
   })
@@ -49,7 +51,7 @@ const Login = () => {
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email as string, password as string)
-      const imgUrl = await upload(avatar.file)
+      const imgUrl = await upload(avatar.file as File)
 
       await setDoc(doc(db, 'users', res.user.uid), {
         username,

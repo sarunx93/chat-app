@@ -14,9 +14,10 @@ import {
   where,
 } from 'firebase/firestore'
 import { useUserStore } from '../../../../lib/userStore'
+import { UserType } from '../../../../lib/userStore'
 
 const AddUser = () => {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<UserType | null>(null)
   const { currentUser } = useUserStore()
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,7 +30,7 @@ const AddUser = () => {
       const querySnapShot = await getDocs(q)
 
       if (!querySnapShot.empty) {
-        setUser(querySnapShot.docs[0].data())
+        setUser(querySnapShot.docs[0].data() as UserType)
       }
     } catch (error) {
       console.log(error)
@@ -46,20 +47,20 @@ const AddUser = () => {
         messages: [],
       })
 
-      await updateDoc(doc(userChatsRef, user.id), {
+      await updateDoc(doc(userChatsRef, user?.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
           lastMessage: '',
-          receiverId: currentUser.id,
+          receiverId: currentUser?.id,
           updatedAt: Date.now(),
         }),
       })
 
-      await updateDoc(doc(userChatsRef, currentUser.id), {
+      await updateDoc(doc(userChatsRef, currentUser?.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
           lastMessage: '',
-          receiverId: user.id,
+          receiverId: user?.id,
           updatedAt: Date.now(),
         }),
       })
@@ -67,8 +68,6 @@ const AddUser = () => {
       console.log(error)
     }
   }
-
-  console.log(typeof currentUser.id, currentUser.id)
 
   return (
     <div className='add-user'>
