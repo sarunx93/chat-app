@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react'
 import './chatList.css'
 import AddUser from './addUser/AddUser'
-import { UserType, useUserStore } from '../../../lib/userStore'
+import { useUserStore } from '../../../lib/userStore'
 import { doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { db } from '../../../lib/firebase'
 import { DocumentData } from 'firebase/firestore'
 import { useChatStore } from '../../../lib/chatStore'
+import { ChatType } from '../../../types'
 
 const ChatList = () => {
   const [addMode, setAddmode] = useState<boolean>(false)
   const [chats, setChats] = useState<DocumentData | undefined>(undefined)
   const [input, setInput] = useState('')
   const { currentUser } = useUserStore()
-  const { chatId, changeChat } = useChatStore()
+  const { changeChat } = useChatStore()
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'userchats', currentUser?.id as string), async (res) => {
       const items = res.data()?.chats
 
-      const promises = items.map(async (item: any) => {
+      const promises = items.map(async (item: ChatType) => {
         const userDocRef = doc(db, 'users', item.receiverId)
         const userDocSnap = await getDoc(userDocRef)
 
@@ -39,8 +40,9 @@ const ChatList = () => {
     setAddmode((prev) => !prev)
   }
 
-  const handleSelect = async (chat: any) => {
-    const userChats = chats?.map((item: any) => {
+  const handleSelect = async (chat: ChatType) => {
+    console.log('chat', chat)
+    const userChats = chats?.map((item: ChatType) => {
       const { user, ...rest } = item
       return rest
     })

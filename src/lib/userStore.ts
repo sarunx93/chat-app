@@ -7,13 +7,13 @@ import { UserType } from '../types'
 type UserStoreState = {
   currentUser: UserType | null
   isLoading: boolean
-  fetchUserInfo: (uid: string | undefined) => Promise<void>
+  fetchUserInfo: (uid: string) => Promise<void>
 }
 
 export const useUserStore = create<UserStoreState>((set) => ({
   currentUser: null,
   isLoading: true,
-  fetchUserInfo: async (uid: string | undefined) => {
+  fetchUserInfo: async (uid: string) => {
     if (!uid) return set({ currentUser: null, isLoading: false })
     try {
       const docRef = doc(db, 'users', uid.toString())

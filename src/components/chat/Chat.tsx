@@ -64,17 +64,17 @@ const chat = () => {
 
       await updateDoc(doc(db, 'chats', chatId as string), {
         messages: arrayUnion({
-          senderId: currentUser.id,
+          senderId: currentUser?.id,
           text,
           createdAt: new Date(),
           ...(imgUrl ? { img: imgUrl } : {}),
         }),
       })
 
-      const userIDs = [currentUser.id, user.id]
+      const userIDs = [currentUser?.id, user?.id]
 
       userIDs.forEach(async (id) => {
-        const userChatsRef = doc(db, 'userchats', id)
+        const userChatsRef = doc(db, 'userchats', id as string)
         const userChatsSnapshot = await getDoc(userChatsRef)
 
         if (userChatsSnapshot.exists()) {
@@ -83,7 +83,7 @@ const chat = () => {
           const chatIndex = userChatsData.chats.findIndex((c: any) => c.chatId === chatId)
 
           userChatsData.chats[chatIndex].lastMessage = text
-          userChatsData.chats[chatIndex].isSeen = id === currentUser.id ? true : false
+          userChatsData.chats[chatIndex].isSeen = id === currentUser?.id ? true : false
           userChatsData.chats[chatIndex].updatedAt = Date.now()
 
           await updateDoc(userChatsRef, {
@@ -109,7 +109,7 @@ const chat = () => {
         <div className='user'>
           <img src={user?.avatar || './avatar.png'} alt='avatar' />
           <div className='texts'>
-            <span>{user.username}</span>
+            <span>{user?.username}</span>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis, consectetur!</p>
           </div>
         </div>
@@ -122,7 +122,7 @@ const chat = () => {
       <div className='center'>
         {chat?.messages.map((message: any) => (
           <div
-            className={message.senderId === currentUser.id ? 'message own' : 'message'}
+            className={message.senderId === currentUser?.id ? 'message own' : 'message'}
             key={message?.createdAt}>
             <div className='texts'>
               {message.img && <img src={message.img} alt='image' />}

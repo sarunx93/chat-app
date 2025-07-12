@@ -14,8 +14,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { useUserStore } from '../../../../lib/userStore'
-import { UserType } from '../../../../lib/userStore'
-
+import { UserType } from '../../../../types'
 const AddUser = () => {
   const [user, setUser] = useState<UserType | null>(null)
   const { currentUser } = useUserStore()

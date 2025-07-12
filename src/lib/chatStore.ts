@@ -2,14 +2,15 @@ import { doc, getDoc } from 'firebase/firestore'
 import { create } from 'zustand'
 import { db } from './firebase'
 import { useUserStore } from './userStore'
+import { UserType } from '../types'
 
 type ChatStoreState = {
   chatId: string | null
-  user: any | null
+  user: UserType | null
   isCurrentUserBlocked: boolean
   isReceiverBlocked: boolean
-  changeChat: (chatId: string, user: any) => void
-  changeBlock: any
+  changeChat: (chatId: string, user: UserType) => void
+  changeBlock: ()=>void
 }
 
 export const useChatStore = create<ChatStoreState>((set) => ({
@@ -18,11 +19,11 @@ export const useChatStore = create<ChatStoreState>((set) => ({
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
   //when switch to other chat.
-  changeChat: (chatId: string, user: any) => {
+  changeChat: (chatId: string, user: UserType) => {
     const currentUser = useUserStore.getState().currentUser
-
+  
     //check if the current user is blocked.
-    if (user.blocked.includes(currentUser.id)) {
+    if (user?.blocked.includes(currentUser?.id as string)) {
       return set({
         chatId,
         user: null,
@@ -32,7 +33,7 @@ export const useChatStore = create<ChatStoreState>((set) => ({
     }
 
     //check if the receiver is blocked.
-    else if (currentUser.blocked.includes(user.id)) {
+    else if (currentUser?.blocked.includes(user?.id)) {
       return set({
         chatId,
         user,

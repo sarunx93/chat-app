@@ -6,8 +6,17 @@ export type ImageFileType = {
 
 export type UserType = {
   avatar: string,
-  blocked: [],
+  blocked: string[],
   email:string,
   id: string,
   username: string
+}
+
+export type ChatType = {
+  chatId: string,
+  isSeen: boolean,
+  lastMessage: string,
+  receiverId: string,
+  updatedAt: number
+  user: UserType
 }
