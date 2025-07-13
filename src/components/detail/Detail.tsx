@@ -4,11 +4,14 @@ import { auth, db } from '../../lib/firebase'
 import { useUserStore } from '../../lib/userStore'
 import './detail.css'
 import { useEffect, useState } from 'react'
+import { ImageFileType } from '../../types'
 
 const Detail = () => {
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, changeBlock } = useChatStore()
   const { currentUser } = useUserStore()
-  const [sharedImages, setSharedImages] = useState<any>([])
+
+  const [sharedImages, setSharedImages] = useState<ImageFileType[]>([])
+  const [showSharedImages, setShowSharedImages] = useState<boolean>(false)
 
   const handleBlock = async () => {
     if (!user) return
@@ -45,7 +48,7 @@ const Detail = () => {
   //getting images to display in 'shared images' section
   useEffect(() => {
     getSharedImages()
-  }, [user])
+  }, [sharedImages])
 
   return (
     <div className='detail'>
@@ -58,49 +61,59 @@ const Detail = () => {
         <div className='option'>
           <div className='title'>
             <span>Chat Setting</span>
-            <img src='./arrowUp.png' alt='' />
+            <button className='arrow-btn'>
+              <img src='./arrowUp.png' alt='' />
+            </button>
           </div>
         </div>
         <div className='option'>
           <div className='title'>
             <span>Privacy % help</span>
-            <img src='./arrowUp.png' alt='' />
+            <button className='arrow-btn'>
+              <img src='./arrowUp.png' alt='' />
+            </button>
           </div>
         </div>
         <div className='option'>
           <div className='title'>
             <span>Shared Photos</span>
-            <img src='./arrowDown.png' alt='' />
+            <button onClick={() => setShowSharedImages((prev) => !prev)} className='arrow-btn'>
+              <img src={showSharedImages ? './arrowUp.png' : './arrowDown.png'} alt='' />
+            </button>
           </div>
-          <div className='photos'>
-            {sharedImages.map((img) => {
-              return (
-                <div className='photo-item'>
-                  <div className='photo-detail'>
-                    <img src={img.img} alt='' />
-                    <span>maekampong.png</span>
-                  </div>
+          {showSharedImages && (
+            <div className='photos'>
+              {sharedImages.map((img, index) => {
+                return (
+                  <div className='photo-item'>
+                    <div className='photo-detail'>
+                      <img src={img.img} alt='' />
+                      <span>{`Image-${index + 1}`}</span>
+                    </div>
 
-                  <img src='./download.png' alt='download' className='icon' />
-                </div>
-              )
-            })}
-          </div>
+                    <img src='./download.png' alt='download' className='icon' />
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
         <div className='option'>
           <div className='title'>
             <span>Shared Files</span>
-            <img src='./arrowUp.png' alt='' />
+            <button className='arrow-btn'>
+              <img src='./arrowUp.png' alt='' />
+            </button>
           </div>
         </div>
-        <button onClick={handleBlock}>
+        <button onClick={handleBlock} className='red-btn'>
           {isCurrentUserBlocked
             ? 'You are blocked.'
             : isReceiverBlocked
             ? 'User blocked'
             : 'Block User'}
         </button>
-        <button className='logout' onClick={() => auth.signOut()}>
+        <button className='red-btn logout' onClick={() => auth.signOut()}>
           Log out
         </button>
       </div>

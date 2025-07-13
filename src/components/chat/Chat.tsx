@@ -6,18 +6,21 @@ import { db } from '../../lib/firebase'
 import { useChatStore } from '../../lib/chatStore'
 import { useUserStore } from '../../lib/userStore'
 import upload from '../../lib/upload'
+import { ImageFileType } from '../../types'
 
 const chat = () => {
+  const { currentUser } = useUserStore()
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } = useChatStore()
+
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [text, setText] = useState<string>('')
   const [chat, setChat] = useState<DocumentData | null>(null)
-  const [img, setImg] = useState<any>({
+  const [img, setImg] = useState<ImageFileType>({
     file: null,
     url: '',
   })
-
-  const { currentUser } = useUserStore()
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } = useChatStore()
+  const [imgPreviewChatId, setImgPreviewChatId] = useState<string | null>(null)
+  const [uploading, setUploading] = useState<boolean>(false)
 
   const endRef = useRef<HTMLDivElement | null>(null)
 
@@ -50,18 +53,19 @@ const chat = () => {
         url: URL.createObjectURL(e.target.files![0]),
       })
     }
+    setImgPreviewChatId(chatId)
   }
 
   const handleSend = async () => {
-    if (text === '') return
+    if (!text && !img.file) return
 
     let imgUrl = null
 
     try {
       if (img.file) {
+        setUploading(true)
         imgUrl = await upload(img.file)
       }
-
       await updateDoc(doc(db, 'chats', chatId as string), {
         messages: arrayUnion({
           senderId: currentUser?.id,
@@ -82,7 +86,7 @@ const chat = () => {
 
           const chatIndex = userChatsData.chats.findIndex((c: any) => c.chatId === chatId)
 
-          userChatsData.chats[chatIndex].lastMessage = text
+          userChatsData.chats[chatIndex].lastMessage = text || '🖼️ Image'
           userChatsData.chats[chatIndex].isSeen = id === currentUser?.id ? true : false
           userChatsData.chats[chatIndex].updatedAt = Date.now()
 
@@ -94,7 +98,7 @@ const chat = () => {
     } catch (error) {
       console.log(error)
     }
-
+    setUploading(false)
     setImg({
       file: null,
       url: '',
@@ -102,7 +106,7 @@ const chat = () => {
 
     setText('')
   }
-
+  console.log('uploading', uploading)
   return (
     <div className='chat'>
       <div className='top'>
@@ -126,15 +130,20 @@ const chat = () => {
             key={message?.createdAt}>
             <div className='texts'>
               {message.img && <img src={message.img} alt='image' />}
-              <p>{message.text}</p>
+              {message.text !== '' && <p>{message.text}</p>}
               <span>1 min ago</span>
             </div>
           </div>
         ))}
-        {img.url && (
+
+        {img.url && imgPreviewChatId === chatId && (
           <div className='message own'>
             <div className='texts'>
-              <img src={img.url} alt='' />
+              {uploading && img.url && <h3>Uploading an image</h3>}
+              <div className='img-wrapper'>
+                <img src={img.url} alt='' style={{ opacity: '0.5' }} />
+                <button className='cancel-button'>X</button>
+              </div>
             </div>
           </div>
         )}

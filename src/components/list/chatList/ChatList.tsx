@@ -100,7 +100,7 @@ const ChatList = () => {
           />
           <div className='texts'>
             <span>{chat.user.blocked.includes(currentUser?.id) ? 'User' : chat.user.username}</span>
-            <p>{chat.lastMessage}</p>
+            <p>{chat.lastMessage || '🖼️ Image'}</p>
           </div>
         </div>
       ))}

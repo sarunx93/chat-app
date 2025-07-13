@@ -29,13 +29,17 @@
         align-items: center;
         justify-content: space-between;
 
-        img {
-          width: 30px;
-          height: 30px;
-          background-color: var(--btn-background);
-          padding: 10px;
-          border-radius: 50%;
-          cursor: pointer;
+        .arrow-btn {
+          background: none;
+          border: none;
+          img {
+            width: 30px;
+            height: 30px;
+            background-color: var(--btn-background);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+          }
         }
       }
 
@@ -44,7 +48,8 @@
         flex-direction: column;
         gap: 20px;
         margin-top: 20px;
-        /* overflow: scroll; */
+        overflow: scroll;
+        height: 150px;
 
         .photo-item {
           display: flex;
@@ -81,7 +86,7 @@
         }
       }
     }
-    button {
+    .red-btn {
       padding: 10px;
       background-color: rgba(230, 74, 105, 0.553);
       color: white;
